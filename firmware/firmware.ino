@@ -6,40 +6,25 @@
  * 
  * Maintainer: Jake Ketchum (jketchum@u.northwestern.edu)
  */
- 
-#include <Servo.h>
-#include <Adafruit_PWMServoDriver.h>
-Adafruit_PWMServoDriver servo_driver = Adafruit_PWMServoDriver();
-
-// Servo motion parameters. 
-#define SERVOMIN  110 // This is the 'minimum' pulse length count (out of 4096)
-#define SERVOMAX  550 // This is the 'maximum' pulse length count (out of 4096)
-// TODO: This line might be wrong.
-#define USMIN  600 // This is the rounded 'minimum' microsecond length based on the minimum pulse of 150
-#define USMAX  2400 // This is the rounded 'maximum' microsecond length based on the maximum pulse of 600
-#define SERVO_FREQ 50 // Analog servos run at ~50 Hz updates
 
 #define LED_PIN 0
+#define ESTOP_PIN 4
 
 double steering_angle = 0;
 
 void setup() {
-
-  // Boilerplate code to boot up the serial driver. 
-  servo_driver.begin();
-  servo_driver.setOscillatorFrequency(27000000);
-  servo_driver.setPWMFreq(SERVO_FREQ);  // Analog servos run at ~50 Hz updates
   
   Serial.begin(115200);
 
   pinMode(LED_PIN, OUTPUT);
-  digitalWrite(LED_PIN, HIGH);
+  pinMode(ESTOP_PIN, INPUT_PULLUP);
+  update_led(1, 0);
   delay(200);
-  digitalWrite(LED_PIN, LOW);
+  update_led(0, 0);
   delay(400);
-  digitalWrite(LED_PIN, HIGH);
+  update_led(1, 0);
   delay(200);
-  digitalWrite(LED_PIN, LOW);
+  update_led(0, 0);
 }
 
 void loop() {
@@ -47,11 +32,8 @@ void loop() {
   process_serial();
 }
 
-void update_servos(int angles[]){
-  for(int i = 0; i < 16; i++)
-  {
-    uint16_t pulselen = map(angles[i], 0, 255, SERVOMIN, SERVOMAX); servo_driver.setPWM(i, 0, pulselen);
-  }
+bool get_button(){
+  return (digitalRead(ESTOP_PIN));
 }
 
 void update_led(byte state, byte value)
@@ -62,12 +44,13 @@ void update_led(byte state, byte value)
  *    value (byte) - if 0, a digital write is used, if non-zero, an analogue write is used. 
  */
 {
+  
   if (value == 0)
   {
     digitalWrite(LED_PIN, state);
   }
   else
   {
-    analogWrite(LED_PIN, state * value);
+    analogWrite(LED_PIN, state*value);
   }
 }

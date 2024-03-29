@@ -29,6 +29,7 @@
 #define SERIAL_ECHO         'b'
 #define SET_SERVOS          'c' // Set the pwm servo board outputs.
 #define SET_LED             'd' // Set the onboard LED state
+#define GET_BUTTON          'k' // get the E-Stop button. 
 
 #define SERIAL_ID           "STP"
 
@@ -62,23 +63,22 @@ void parse_command(byte command[]){
       //Reply with a pre-programed responce. 
       Serial.println(SERIAL_ID);
       break;
+      
     case SERIAL_ECHO: 
       //Reply with exactly the payload that was sent. 
       for(int i = SERIAL_INDEX_DATA_START; i >=SERIAL_INDEX_DATA_END; i--){
         Serial.write(command[i]);
       }
       break;
-    case SET_SERVOS:
-      int angles[16];
-      int b = 0;
-      for(int i = SERIAL_INDEX_DATA_START; i >=SERIAL_INDEX_DATA_END; i--){
-        angles[b] = command[i];
-        b++;
-      }
-      update_servos(angles);
 
     case SET_LED:
       update_led(command[SERIAL_INDEX_DATA_START], command[SERIAL_INDEX_DATA_START - 1]);
+      break;
+
+    case GET_BUTTON:
+      bool value;
+      value = get_button();
+      Serial.write(value);
       
     default: 
       //Likely an invalid command, prints command on serial. 
