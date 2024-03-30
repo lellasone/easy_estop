@@ -61,7 +61,7 @@ class EstopPublisher(Node):
 
         # Make LED change. 
         period = self.period
-        if msg.data == True: period *= 0.5
+        if msg.data == False: period *= 0.25
         value = (np.sin(time.time()*2*np.pi*period)/2 + 0.5)*self.brightness   
         set_light(1, int(value), self.port) 
         
