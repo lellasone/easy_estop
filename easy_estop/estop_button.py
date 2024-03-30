@@ -29,7 +29,7 @@ class EstopPublisher(Node):
         timer_period = 0.1 #TODO: make this a parameter and share with other node
         estop_id = b'STP'
         self.period = 1 # Period for lED sin wave. 
-        self.brightness = 255 # LED brightness out of 255
+        self.brightness = 200 # LED brightness out of 255
         
         ## Find the e-stop ##
         result = find_comport(estop_id)
@@ -46,10 +46,7 @@ class EstopPublisher(Node):
         self.timer = self.create_timer(timer_period, self.poll_estop) 
 
     def poll_estop(self):
-        print("Hello")
-        # Make LED change. 
-        value = (np.sin(time.time()*2*np.pi*self.period)/2 + 0.5)*self.brightness   
-        set_light(1, int(value), self.port) 
+
 
         # Check E-stop Status.
         msg = Bool()
@@ -61,6 +58,12 @@ class EstopPublisher(Node):
             msg.data = False
         print(result) 
         self.publisher_.publish(msg)
+
+        # Make LED change. 
+        period = self.period
+        if msg.data = True: period *= 0.5
+        value = (np.sin(time.time()*2*np.pi*self.period)/2 + 0.5)*self.brightness   
+        set_light(1, int(value), self.port) 
         
 def main(args = None):
     rclpy.init(args = args)
