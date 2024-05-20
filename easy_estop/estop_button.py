@@ -46,22 +46,24 @@ class EstopPublisher(Node):
         self.timer = self.create_timer(timer_period, self.poll_estop) 
 
     def poll_estop(self):
-        print("Hello")
-        # Make LED change. 
-        value = (np.sin(time.time()*2*np.pi*self.period)/2 + 0.5)*self.brightness   
-        set_light(1, int(value), self.port) 
-
         # Check E-stop Status.
         msg = Bool()
         result = get_button(self.port)
-        if not result[0]: self.get_logger().warn("Failed to poll teensy")
-        if result[1] == b'\x01':
-            msg.data = True
+        if not result[0]: 
+            self.get_logger().warn("Failed to poll teensy")
+            msg.data = True # If we can't find the e-stop, don't let the robot run. 
+        elif result[1] == b'\x01':
+            msg.data = True # E-stop tripped. 
         else:
             msg.data = False
-        print(result) 
         self.publisher_.publish(msg)
-        
+
+        # Make LED change. 
+        period = self.period
+        if msg.data == False: period *= 0.25
+        value = (np.sin(time.time()*2*np.pi*period)/2 + 0.5)*self.brightness   
+        set_light(1, int(value), self.port)         
+
 def main(args = None):
     rclpy.init(args = args)
     estop_driver = EstopPublisher()

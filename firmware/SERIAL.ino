@@ -58,6 +58,10 @@ void process_serial(){
  *           data is sent MSB first. 
  */
 void parse_command(byte command[]){
+  // Place variable initialization here:
+  // Variables cannot be initialized within the switch statement. 
+  bool value;
+  
   switch(command[SERIAL_INDEX_COMMAND]){
     case SERIAL_PING:
       //Reply with a pre-programed responce. 
@@ -70,13 +74,12 @@ void parse_command(byte command[]){
         Serial.write(command[i]);
       }
       break;
-
+      
     case SET_LED:
       update_led(command[SERIAL_INDEX_DATA_START], command[SERIAL_INDEX_DATA_START - 1]);
       break;
 
     case GET_BUTTON:
-      bool value;
       value = get_button();
       Serial.write(value);
       
