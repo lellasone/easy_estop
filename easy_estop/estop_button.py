@@ -29,7 +29,7 @@ class EstopPublisher(Node):
         timer_period = 0.1 #TODO: make this a parameter and share with other node
         estop_id = b'STP'
         self.period = 1 # Period for lED sin wave. 
-        self.brightness = 255 # LED brightness out of 255
+        self.brightness = 200 # LED brightness out of 255
         
         ## Find the e-stop ##
         result = find_comport(estop_id)
@@ -62,8 +62,9 @@ class EstopPublisher(Node):
         period = self.period
         if msg.data == False: period *= 0.25
         value = (np.sin(time.time()*2*np.pi*period)/2 + 0.5)*self.brightness   
-        set_light(1, int(value), self.port)         
-
+        
+        set_light(1, int(value), self.port) 
+        
 def main(args = None):
     rclpy.init(args = args)
     estop_driver = EstopPublisher()
